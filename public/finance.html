@@ -114,8 +114,11 @@
                 </div>
             </div>
             <div class="insights-card">
-                <h3>💡 Spending Insights</h3>
-                <div id="spendingInsights"></div>
+                <h3 class="collapsible-header" onclick="toggleInsights()">
+                    <span>💡 Spending Insights</span>
+                    <span class="collapse-toggle" id="insightsToggle" aria-label="Toggle insights">−</span>
+                </h3>
+                <div id="spendingInsights" class="collapsible-content"></div>
             </div>
         </div>
 

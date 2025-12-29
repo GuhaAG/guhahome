@@ -502,14 +502,21 @@ function showAlert(alert) {
 
     const alertElement = document.createElement('div');
     alertElement.className = `alert alert-${alert.type}`;
+    alertElement.setAttribute('data-alert-id', alert.id);
     alertElement.innerHTML = `
         <div class="alert-icon">${alert.icon}</div>
         <div class="alert-content">
             <div class="alert-title">${alert.title}</div>
             <div class="alert-message">${alert.message}</div>
         </div>
-        <button class="alert-close" onclick="dismissAlert('${alert.id}', this)">×</button>
+        <button class="alert-close" aria-label="Close alert">×</button>
     `;
+
+    // Add click event listener to close button
+    const closeButton = alertElement.querySelector('.alert-close');
+    closeButton.addEventListener('click', function() {
+        dismissAlert(alert.id, alertElement);
+    });
 
     container.appendChild(alertElement);
 
@@ -517,50 +524,48 @@ function showAlert(alert) {
     if (alert.type === 'success') {
         setTimeout(() => {
             if (alertElement.parentNode) {
-                dismissAlert(alert.id, alertElement.querySelector('.alert-close'));
+                dismissAlert(alert.id, alertElement);
             }
         }, 10000);
     }
 }
 
 // Dismiss an alert
-function dismissAlert(alertId, buttonElement) {
+function dismissAlert(alertId, alertElement) {
     activeAlerts.delete(alertId);
-    const alertElement = buttonElement.closest('.alert');
-    alertElement.style.animation = 'slideOut 0.3s ease-in';
-    setTimeout(() => {
-        if (alertElement.parentNode) {
-            alertElement.remove();
-        }
-    }, 300);
+
+    if (!alertElement) {
+        alertElement = document.querySelector(`[data-alert-id="${alertId}"]`);
+    }
+
+    if (alertElement && alertElement.parentNode) {
+        alertElement.style.animation = 'slideOut 0.3s ease-in forwards';
+        setTimeout(() => {
+            if (alertElement && alertElement.parentNode) {
+                alertElement.remove();
+            }
+        }, 300);
+    }
 }
 
-// Make dismissAlert available globally
-window.dismissAlert = dismissAlert;
+// Toggle insights section
+function toggleInsights() {
+    const insightsContent = document.getElementById('spendingInsights');
+    const toggleButton = document.getElementById('insightsToggle');
 
-// CSS for slide out animation
-if (!document.getElementById('alertAnimations')) {
-    const style = document.createElement('style');
-    style.id = 'alertAnimations';
-    style.textContent = `
-        @keyframes slideOut {
-            from {
-                opacity: 1;
-                transform: translateY(0);
-                max-height: 100px;
-            }
-            to {
-                opacity: 0;
-                transform: translateY(-10px);
-                max-height: 0;
-                margin-bottom: 0;
-                padding-top: 0;
-                padding-bottom: 0;
-            }
-        }
-    `;
-    document.head.appendChild(style);
+    if (insightsContent.style.display === 'none') {
+        insightsContent.style.display = 'block';
+        toggleButton.textContent = '−';
+        toggleButton.setAttribute('aria-expanded', 'true');
+    } else {
+        insightsContent.style.display = 'none';
+        toggleButton.textContent = '+';
+        toggleButton.setAttribute('aria-expanded', 'false');
+    }
 }
+
+// Make toggleInsights available globally
+window.toggleInsights = toggleInsights;
 
 // Generate spending forecast
 function generateSpendingForecast(data, budgetMetrics) {
@@ -945,7 +950,9 @@ async function resyncData() {
     try {
         // Disable button and show loading state
         resyncBtn.disabled = true;
-        resyncBtn.innerHTML = '⏳';
+        resyncBtn.style.opacity = '0.5';
+        resyncBtn.innerHTML = '↻';
+        resyncBtn.style.animation = 'spin 1s linear infinite';
         showStatus('Fetching latest data from Wise API...', 'loading');
 
         // Make resync request
@@ -958,7 +965,7 @@ async function resyncData() {
 
         if (!response.ok) {
             const error = await response.json();
-            throw new Error(error.error || 'Failed to resync data');
+            throw new Error(error.details || error.error || 'Failed to resync data');
         }
 
         const result = await response.json();
@@ -980,9 +987,11 @@ async function resyncData() {
         console.error('Resync error:', error);
         showStatus(`Resync failed: ${error.message}`, 'error');
     } finally {
-        // Re-enable button
+        // Re-enable button and restore appearance
         resyncBtn.disabled = false;
-        resyncBtn.innerHTML = '🔄';
+        resyncBtn.style.opacity = '1';
+        resyncBtn.innerHTML = '↻';
+        resyncBtn.style.animation = '';
     }
 }
 
