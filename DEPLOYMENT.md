@@ -112,7 +112,7 @@ git init
 git remote add origin <your-repo-url>
 git add .
 git commit -m "initial commit for deployment"
-git push -u origin master
+git push -u origin main
 ```
 
 **Important:** Make sure `.env` is in `.gitignore` (it already is) - never commit credentials!
@@ -223,7 +223,7 @@ set -e
 echo "🚀 Deploying updates to guha home..."
 
 # Pull latest code
-git pull origin master
+git pull origin main
 
 # Install any new dependencies
 npm install --production
@@ -258,7 +258,7 @@ Whenever you make changes and want to deploy:
 # On your local machine:
 git add .
 git commit -m "your changes"
-git push origin master
+git push origin main
 
 # On the server (via SSH):
 ssh guha@your-droplet-ip
@@ -601,7 +601,7 @@ You now have:
 
 **To deploy updates in the future:**
 ```bash
-git push origin master
+git push origin main
 ssh guha@your-droplet-ip "cd ~/guha-home && ./deploy.sh"
 ```
 
