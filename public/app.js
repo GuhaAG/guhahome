@@ -47,6 +47,32 @@ function formatCurrency(amount, currency = 'USD') {
     }).format(amount);
 }
 
+/**
+ * Get current date in JST timezone (YYYY-MM-DD)
+ */
+function getCurrentJSTDate() {
+  const jstDateFormatter = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Tokyo',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  });
+  return jstDateFormatter.format(new Date());
+}
+
+/**
+ * Convert any date to JST date string (YYYY-MM-DD)
+ */
+function convertToJSTDate(date) {
+  const jstDateFormatter = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Tokyo',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  });
+  return jstDateFormatter.format(date);
+}
+
 // Format date for display
 function formatDate(dateString) {
     const date = new Date(dateString);
@@ -451,7 +477,7 @@ function checkAndShowAlerts(budgetMetrics, data) {
     }
 
     // Daily spending alerts
-    const today = new Date().toISOString().split('T')[0];
+    const today = getCurrentJSTDate();
     const todaySpending = data.dailyTotals[today]?.total || 0;
     const avgDailyTarget = budgetMetrics.budgetPerDay;
 
@@ -591,7 +617,7 @@ function generateSpendingForecast(data, budgetMetrics) {
     for (let i = 6; i >= 0; i--) {
         const date = new Date(today);
         date.setDate(date.getDate() - i);
-        const dateStr = date.toISOString().split('T')[0];
+        const dateStr = convertToJSTDate(date);
         const dayData = data.dailyTotals[dateStr];
 
         forecast.push({
@@ -616,7 +642,7 @@ function generateSpendingForecast(data, budgetMetrics) {
     for (let i = 1; i <= 7; i++) {
         const date = new Date(today);
         date.setDate(date.getDate() + i);
-        const dateStr = date.toISOString().split('T')[0];
+        const dateStr = convertToJSTDate(date);
         const dayOfWeek = date.getDay();
 
         const predictedAmount = avgDailySpending * weekdayMultipliers[dayOfWeek];

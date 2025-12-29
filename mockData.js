@@ -22,6 +22,23 @@ const mockMerchants = [
   { name: 'Uniqlo', minAmount: 2000, maxAmount: 8000, frequency: 0.02 }
 ];
 
+/**
+ * Convert UTC ISO timestamp to JST date string (YYYY-MM-DD)
+ */
+function convertUTCtoJSTDate(utcIsoString) {
+  if (!utcIsoString) return new Date().toISOString().split('T')[0];
+  const date = new Date(utcIsoString);
+  if (isNaN(date.getTime())) return new Date().toISOString().split('T')[0];
+
+  const jstDateFormatter = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Tokyo',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  });
+  return jstDateFormatter.format(date);
+}
+
 // Generate random amount within merchant's typical range
 function getRandomAmount(merchant) {
   const { minAmount, maxAmount } = merchant;
@@ -176,9 +193,9 @@ function generateMockCachedData(startDate = '2025-12-01', endDate = '2025-12-31'
     })
     .sort((a, b) => new Date(b.date) - new Date(a.date));
 
-  // Calculate daily totals
+  // Calculate daily totals (using JST timezone)
   const dailyTotals = convertedTransactions.reduce((acc, txn) => {
-    const date = txn.date.split('T')[0];
+    const date = convertUTCtoJSTDate(txn.date);
     if (!acc[date]) {
       acc[date] = {
         total: 0,

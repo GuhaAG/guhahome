@@ -32,6 +32,34 @@ const MOCK_MODE = process.env.MOCK_MODE === 'true';
 // Settings file path
 const SETTINGS_FILE = path.join(__dirname, 'settings.json');
 
+/**
+ * Convert UTC ISO timestamp to JST date string (YYYY-MM-DD)
+ * @param {string} utcIsoString - UTC timestamp (e.g., "2024-12-29T20:00:00.000Z")
+ * @returns {string} JST date string (e.g., "2024-12-30")
+ */
+function convertUTCtoJSTDate(utcIsoString) {
+  if (!utcIsoString) {
+    console.warn('convertUTCtoJSTDate: received null/undefined input');
+    return new Date().toISOString().split('T')[0];
+  }
+
+  const date = new Date(utcIsoString);
+
+  if (isNaN(date.getTime())) {
+    console.warn('convertUTCtoJSTDate: invalid date string:', utcIsoString);
+    return new Date().toISOString().split('T')[0];
+  }
+
+  const jstDateFormatter = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Tokyo',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  });
+
+  return jstDateFormatter.format(date);
+}
+
 // Load settings from file (required)
 function loadSettings() {
   try {
@@ -234,9 +262,9 @@ async function fetchAndProcessActivities(startDate = DATA_START_DATE, endDate = 
 
     const finalTransactions = uniqueTransactions;
 
-    // Calculate daily totals
+    // Calculate daily totals (using JST timezone)
     const dailyTotals = finalTransactions.reduce((acc, txn) => {
-      const date = txn.date.split('T')[0];
+      const date = convertUTCtoJSTDate(txn.date);
       if (!acc[date]) {
         acc[date] = {
           total: 0,
@@ -436,9 +464,9 @@ app.get('/api/transactions', async (req, res) => {
         return txnDate >= startDate && txnDate <= endDate;
       });
 
-      // Recalculate daily totals for filtered date range
+      // Recalculate daily totals for filtered date range (using JST timezone)
       filteredDailyTotals = filteredTransactions.reduce((acc, txn) => {
-        const date = txn.date.split('T')[0];
+        const date = convertUTCtoJSTDate(txn.date);
         if (!acc[date]) {
           acc[date] = {
             total: 0,
