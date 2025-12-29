@@ -87,7 +87,7 @@ echo "Step 7/8: Configuring nginx..."
 cat > /etc/nginx/sites-available/guha-home << 'NGINXEOF'
 server {
     listen 80;
-    server_name DOMAINNAME;
+    server_name DOMAINNAME www.DOMAINNAME;
 
     location / {
         proxy_pass http://localhost:3000;
@@ -110,7 +110,7 @@ systemctl reload nginx
 echo "  ✓ nginx configured and reloaded"
 
 echo "Step 8/8: Setting up SSL with Let's Encrypt..."
-certbot --nginx -d DOMAINNAME --non-interactive --agree-tos --email admin@DOMAINNAME --redirect > /dev/null 2>&1 || {
+certbot --nginx -d DOMAINNAME -d www.DOMAINNAME --non-interactive --agree-tos --email admin@DOMAINNAME --redirect > /dev/null 2>&1 || {
     echo "  ⚠ SSL setup will be done manually (see instructions below)"
 }
 
@@ -127,9 +127,10 @@ echo "=========================================="
 echo ""
 echo "Your app should be accessible at:"
 echo "  → https://DOMAINNAME"
+echo "  → https://www.DOMAINNAME"
 echo ""
 echo "If SSL didn't auto-configure, run manually:"
-echo "  sudo certbot --nginx -d DOMAINNAME"
+echo "  sudo certbot --nginx -d DOMAINNAME -d www.DOMAINNAME"
 echo ""
 echo "Useful commands:"
 echo "  Check status:  sudo -u guha pm2 status"

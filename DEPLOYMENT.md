@@ -88,6 +88,34 @@ Create a new DNS record with these settings:
 - `guha` → Site will be at `guha.yourdomain.com`
 - `home` → Site will be at `home.yourdomain.com`
 
+### Step 2.5: Add WWW Subdomain (Optional but Recommended)
+
+To make your site accessible at both `yourdomain.com` and `www.yourdomain.com`, add a DNS record for the www subdomain.
+
+**Option A: CNAME Record (Recommended)**
+
+| Field | Value |
+|-------|-------|
+| **Type** | CNAME |
+| **Host/Name** | www |
+| **Value/Points to** | @ or yourdomain.com |
+| **TTL** | 3600 or Automatic |
+
+This method is preferred because if your server IP changes, you only need to update one A record.
+
+**Option B: A Record**
+
+| Field | Value |
+|-------|-------|
+| **Type** | A |
+| **Host/Name** | www |
+| **Value/Points to** | Your droplet IP address |
+| **TTL** | 3600 or Automatic |
+
+This creates a separate A record pointing directly to your server IP.
+
+**Note:** If you add the www subdomain, you'll need to update your nginx configuration and SSL certificate to handle both domains. See the "Adding WWW Subdomain to Existing Deployment" section below for instructions.
+
 ### Step 3: Wait for DNS Propagation
 - DNS changes can take 5-60 minutes to propagate
 - You can continue to the next step while waiting
@@ -245,6 +273,76 @@ chmod +x deploy.sh
 ```
 
 You should see the deployment process run and the app restart.
+
+---
+
+## Adding WWW Subdomain to Existing Deployment
+
+If you've already deployed your app and want to add www subdomain support (so both `yourdomain.com` and `www.yourdomain.com` work), follow these steps:
+
+### Step 1: Update DNS Settings
+
+Add a DNS record for the www subdomain (choose one option):
+
+**Option A: CNAME Record (Recommended)**
+- Type: CNAME
+- Host/Name: www
+- Points to: @ or yourdomain.com
+- TTL: 3600 or Automatic
+
+**Option B: A Record**
+- Type: A
+- Host/Name: www
+- Points to: Your droplet IP address
+- TTL: 3600 or Automatic
+
+Wait 5-10 minutes for DNS propagation.
+
+### Step 2: Update nginx Configuration
+
+SSH into your droplet and edit the nginx configuration:
+
+```bash
+ssh root@your-droplet-ip
+nano /etc/nginx/sites-available/guha-home
+```
+
+Find the line that says:
+```nginx
+server_name yourdomain.com;
+```
+
+Change it to include the www subdomain:
+```nginx
+server_name yourdomain.com www.yourdomain.com;
+```
+
+Save the file (Ctrl+O, Enter, Ctrl+X), then test and reload nginx:
+
+```bash
+nginx -t
+systemctl reload nginx
+```
+
+### Step 3: Update SSL Certificate
+
+Update your Let's Encrypt certificate to include both domains:
+
+```bash
+certbot --nginx -d yourdomain.com -d www.yourdomain.com
+```
+
+Follow the prompts. Certbot will automatically update the nginx configuration and reload it.
+
+### Step 4: Verify
+
+Open your browser and test both URLs:
+- `https://yourdomain.com`
+- `https://www.yourdomain.com`
+
+Both should work and show your site. The www version will automatically redirect to the non-www version (or vice versa, depending on your certbot configuration).
+
+**Note:** For future deployments, the automated setup script has been updated to configure www subdomain automatically.
 
 ---
 
