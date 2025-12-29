@@ -8,7 +8,7 @@
  * - Date range selection
  */
 
-const API_BASE_URL = 'http://localhost:3000';
+const API_BASE_URL = ''; // Use relative URLs for production compatibility
 
 // DOM elements
 const resyncBtn = document.getElementById('resyncBtn');
