@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My WISE Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>My WISE Tracker</h1>
+        </header>
+
+        <div class="controls">
+            <div class="status" id="status"></div>
+            <div class="alerts-container" id="alertsContainer"></div>
+            <div class="cache-info" id="cacheInfo" style="display: none;">
+                <small>Last updated: <span id="lastUpdated">-</span> | Data window: <span id="dataWindow">-</span></small>
+            </div>
+        </div>
+
+        <button id="resyncBtn" class="resync-button">↻</button>
+        <button id="settingsBtn" class="settings-button">⚙️</button>
+
+        <!-- Settings Modal -->
+        <div id="settingsModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>⚙️ Settings</h3>
+                    <button class="modal-close" id="closeSettingsBtn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="setting-group">
+                        <label for="startDate">Data Start Date:</label>
+                        <input type="date" id="startDate" name="startDate">
+                        <small>The beginning of your budget tracking period</small>
+                    </div>
+                    <div class="setting-group">
+                        <label for="endDate">Data End Date:</label>
+                        <input type="date" id="endDate" name="endDate">
+                        <small>The end of your budget tracking period</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="cancelSettingsBtn" class="btn-secondary">Cancel</button>
+                    <button id="saveSettingsBtn" class="btn-primary">Save & Refresh Data</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="budget-overview" id="budgetOverview" style="display: none;">
+            <div class="budget-progress-section">
+                <div class="budget-header">
+                    <h2>Budget Status</h2>
+                    <div class="budget-status" id="budgetStatus">🟢 On Track</div>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar-wrapper">
+                        <div class="progress-bar" id="progressBar">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                        <div class="progress-label">
+                            <span id="spentPercentage">0%</span> of budget used
+                        </div>
+                    </div>
+                    <div class="budget-metrics">
+                        <div class="metric">
+                            <span class="metric-label">Days Remaining</span>
+                            <span class="metric-value" id="daysRemaining">-</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Budget per Day</span>
+                            <span class="metric-value" id="budgetPerDay">-</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Remaining</span>
+                            <span class="metric-value" id="remainingBudget">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="summary" id="summary" style="display: none;">
+            <div class="summary-card budget-card">
+                <h3>Monthly Budget</h3>
+                <p class="summary-value budget-value" id="monthlyBudget">-</p>
+            </div>
+            <div class="summary-card">
+                <h3>Total Expenses</h3>
+                <p class="summary-value" id="totalExpenses">-</p>
+            </div>
+            <div class="summary-card">
+                <h3>Total Transactions</h3>
+                <p class="summary-value" id="totalTransactions">-</p>
+            </div>
+            <div class="summary-card">
+                <h3>Days with Activity</h3>
+                <p class="summary-value" id="activeDays">-</p>
+            </div>
+        </div>
+
+        <div class="analytics-section" id="analyticsSection" style="display: none;">
+            <div class="analytics-grid">
+                <div class="analytics-card">
+                    <h3>Spending by Category</h3>
+                    <div class="category-chart" id="categoryChart"></div>
+                </div>
+                <div class="analytics-card">
+                    <h3>Daily Spending Trend</h3>
+                    <div class="trend-chart" id="trendChart"></div>
+                </div>
+            </div>
+            <div class="insights-card">
+                <h3>💡 Spending Insights</h3>
+                <div id="spendingInsights"></div>
+            </div>
+        </div>
+
+        <div class="forecast-section" id="forecastSection" style="display: none;">
+            <div class="forecast-card">
+                <h3>🔮 Budget Forecast</h3>
+                <div class="forecast-content">
+                    <div class="forecast-chart" id="forecastChart"></div>
+                    <div class="forecast-summary" id="forecastSummary"></div>
+                </div>
+            </div>
+        </div>
+
+
+        <div id="dailyTotals" class="daily-totals"></div>
+
+        <div id="transactionsList" class="transactions-list"></div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
