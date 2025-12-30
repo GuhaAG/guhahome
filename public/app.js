@@ -253,13 +253,17 @@ function renderSummary(data) {
         const spentAmount = totalExpenses || 0;
         const totalBudget = remainingBalance + spentAmount; // True budget = remaining + spent
 
-        const startDate = new Date(data.dataWindow.start);
-        const endDate = new Date(data.dataWindow.end);
-        const currentDate = new Date();
+        // Use JST timezone for all date calculations
+        const currentJSTDate = getCurrentJSTDate();
+        const msPerDay = 1000 * 60 * 60 * 24;
 
-        // Calculate days remaining in budget window
-        const daysRemaining = Math.max(0, Math.ceil((endDate - currentDate) / (1000 * 60 * 60 * 24)));
-        const totalDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+        const currentMs = new Date(currentJSTDate).getTime();
+        const endMs = new Date(data.dataWindow.end).getTime();
+        const startMs = new Date(data.dataWindow.start).getTime();
+
+        // Calculate days remaining in budget window (JST-aware)
+        const daysRemaining = Math.max(0, Math.ceil((endMs - currentMs) / msPerDay));
+        const totalDays = Math.ceil((endMs - startMs) / msPerDay);
 
         // Calculate spending metrics - handle zero/empty cases
         const spentPercentage = totalBudget > 0 ? ((spentAmount / totalBudget) * 100) : 0;
